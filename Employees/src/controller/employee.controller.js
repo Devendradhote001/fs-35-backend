@@ -1,4 +1,4 @@
-import EmployeeModel from "../models/employee.model";
+import EmployeeModel from "../models/employee.model.js";
 
 export const createEmployeeController = async (req, res) => {
   try {
@@ -31,8 +31,10 @@ export const createEmployeeController = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Employee created",
+      data: newEmployee,
     });
   } catch (error) {
+    console.log("error in creation", error);
     return res.status(500).json({
       success: false,
       message: "Something went wrong",
