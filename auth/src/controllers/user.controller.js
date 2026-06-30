@@ -54,26 +54,40 @@ const loginController = async (req, res) => {
     if (!email || !password)
       return res.status(400).json({
         success: false,
-        message: "email and password is required",
+        message: "Email and password is required",
       });
 
-    const isUserExist = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email });
 
-    if (!isUserExist)
+    if (!user)
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
 
-    const comparePass = bcrypt.compareSync(password, isUserExist.password);
+    const comparePass = bcrypt.compareSync(password, user.password);
 
     if (!comparePass)
       return res.status(401).json({
         success: false,
-        message: "Invalid credential",
+        message: "Invalid credentials",
       });
 
-      
+    const token = jwt.sign(
+      { id: user._id},
+      process.env.JWT_SECRET_KEY,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    res.cookie("secret", token);
+
+    return res.status(200).json({
+      success: true,
+      message: "User loggedIn",
+      data: user,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -85,4 +99,5 @@ const loginController = async (req, res) => {
 
 module.exports = {
   registerController,
+  loginController,
 };
